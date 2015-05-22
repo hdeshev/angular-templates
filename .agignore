@@ -1,0 +1,5 @@
+dist
+src/angular2
+node_modules
+.baseDir.ts
+.tscache

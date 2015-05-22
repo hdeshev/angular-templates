@@ -1,0 +1,9 @@
+dist
+node_modules
+tags
+.ctags-exclude
+typings
+src/angular2
+src/reflect-metadata
+.baseDir.ts
+.tscache
