@@ -42,14 +42,10 @@ module.exports = function(grunt) {
                     '!angular2/angular2_sfx*',
                     '!angular2/router*',
                     '!angular2/src/router/**/*',
-                    '!angular2/forms*',
-                    '!angular2/src/forms/**/*',
                     '!angular2/src/mock/**/*',
                     '!angular2/docs/**/*',
                     '!angular2/test*',
-                    '!angular2/test_lib*',
                     '!angular2/src/test_lib/**/*',
-                    '!angular2/**/*selenium*/**/*',
                 ],
                 dest: 'src/'
             },
@@ -83,12 +79,7 @@ module.exports = function(grunt) {
         'cleanAngular',
         'copy:reflect',
         'copy:angularSource',
-        'fakeAngularForms',
     ]);
-
-    grunt.registerTask("fakeAngularForms", function() {
-        grunt.file.write('src/angular2/forms.ts', 'export function dummy() {};');
-    })
 
     grunt.registerTask("cleanAngular", function() {
         grunt.file.delete('src/angular2');
