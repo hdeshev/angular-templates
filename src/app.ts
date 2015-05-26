@@ -1,6 +1,4 @@
-import reflectMetadata = require("reflect-metadata");
-var dummy = reflectMetadata; //trigger module import
-
+import 'reflect-metadata';
 import {Component, View} from 'angular2/angular2';
 import {bootstrap} from 'dom/application';
 
