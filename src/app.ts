@@ -1,16 +1,15 @@
 import reflectMetadata = require("reflect-metadata");
 var dummy = reflectMetadata; //trigger module import
 
-import {Component, View, bootstrap} from 'angular2/angular2';
+import {Component, View} from 'angular2/angular2';
+import {bootstrap} from 'dom/application';
 
-// Annotation section
 @Component({
   selector: 'my-app'
 })
 @View({
   template: '<h1>Hello {{ name }}</h1>'
 })
-// Component controller
 class MyAppComponent {
   name: string;
 
@@ -19,4 +18,8 @@ class MyAppComponent {
   }
 }
 
-bootstrap(MyAppComponent);
+try {
+    bootstrap(MyAppComponent);
+} catch (e) {
+    console.log(e);
+}
