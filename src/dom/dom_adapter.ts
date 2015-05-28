@@ -2,6 +2,7 @@ import {BaseException} from 'angular2/src/facade/lang';
 import {DomAdapter, setRootDomAdapter} from 'angular2/src/dom/dom_adapter';
 
 function _abstract() {
+  debugger;
   return new BaseException('This method is abstract');
 }
 
@@ -38,14 +39,23 @@ export class TestDomAdapter extends DomAdapter {
   preventDefault(evt) { throw _abstract(); }
   getInnerHTML(el): string { throw _abstract(); }
   getOuterHTML(el): string { throw _abstract(); }
-  nodeName(node): string { throw _abstract(); }
+  nodeName(node): string {
+      //throw _abstract();
+      return "div";
+  }
   nodeValue(node): string { throw _abstract(); }
   type(node): string { throw _abstract(); }
   content(node): any { throw _abstract(); }
-  firstChild(el): any { throw _abstract(); }
+  firstChild(el): any {
+      //throw _abstract();
+      return null;
+  }
   nextSibling(el): any { throw _abstract(); }
   parentElement(el): any { throw _abstract(); }
-  childNodes(el): List<any> { throw _abstract(); }
+  childNodes(el): List<any> {
+      //throw _abstract();
+      return [];
+  }
   childNodesAsList(el): List<any> { throw _abstract(); }
   clearNodes(el) { throw _abstract(); }
   appendChild(el, node) { throw _abstract(); }
@@ -78,27 +88,45 @@ export class TestDomAdapter extends DomAdapter {
   hasProperty(element, name: string): boolean { throw _abstract(); }
   getElementsByClassName(element, name: string): List<any> { throw _abstract(); }
   getElementsByTagName(element, name: string): List<any> { throw _abstract(); }
-  classList(element): List<any> { throw _abstract(); }
+  classList(element): List<any> {
+      //throw _abstract();
+      return [];
+  }
   addClass(element, classname: string) { throw _abstract(); }
   removeClass(element, classname: string) { throw _abstract(); }
-  hasClass(element, classname: string) { throw _abstract(); }
+  hasClass(element, classname: string) {
+      //throw _abstract();
+      return false;
+  }
   setStyle(element, stylename: string, stylevalue: string) { throw _abstract(); }
   removeStyle(element, stylename: string) { throw _abstract(); }
   getStyle(element, stylename: string) { throw _abstract(); }
-  tagName(element): string { throw _abstract(); }
-  attributeMap(element): Map<string, string> { throw _abstract(); }
+  tagName(element): string {
+      //throw _abstract();
+      return "div";
+  }
+  attributeMap(element): Map<string, string> {
+      //throw _abstract();
+      return new Map<string, string>();
+  }
   hasAttribute(element, attribute: string): boolean { throw _abstract(); }
   getAttribute(element, attribute: string): string { throw _abstract(); }
   setAttribute(element, name: string, value: string) { throw _abstract(); }
   removeAttribute(element, attribute: string) { throw _abstract(); }
-  templateAwareRoot(el) { throw _abstract(); }
+  templateAwareRoot(el) {
+      //throw _abstract();
+      return el;
+  }
   createHtmlDocument() { return new Document({}); }
   defaultDoc(): any { return new Document({}); }
   getBoundingClientRect(el) { throw _abstract(); }
   getTitle(): string { throw _abstract(); }
   setTitle(newTitle: string) { throw _abstract(); }
   elementMatches(n, selector: string): boolean { throw _abstract(); }
-  isTemplateElement(el: any): boolean { throw _abstract(); }
+  isTemplateElement(el: any): boolean {
+      //throw _abstract();
+      return false;
+  }
   isTextNode(node): boolean { throw _abstract(); }
   isCommentNode(node): boolean { throw _abstract(); }
   isElementNode(node): boolean { throw _abstract(); }

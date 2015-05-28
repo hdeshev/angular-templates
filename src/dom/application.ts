@@ -22,6 +22,7 @@ import {AppViewManagerUtils} from 'angular2/src/core/compiler/view_manager_utils
 import {DomRenderer, DOCUMENT_TOKEN} from 'angular2/src/render/dom/dom_renderer';
 import {Renderer, RenderCompiler} from 'angular2/src/render/api';
 
+import {DefaultDomCompiler} from 'angular2/src/render/dom/compiler/compiler';
 import {resolveInternalDomView} from 'angular2/src/render/dom/view/view';
 import {EventManager} from 'angular2/src/render/dom/events/event_manager';
 import {ShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/shadow_dom_strategy';
@@ -70,6 +71,7 @@ function _createNgZone(givenReporter: Function): NgZone {
 }
 
 function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
+  console.log(appComponentRefToken);
   return [
     bind(DOCUMENT_TOKEN)
         .toValue(DOM.defaultDoc()),
@@ -77,10 +79,12 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
     bind(appComponentRefToken)
         .toAsyncFactory((dynamicComponentLoader, injector, testability, registry) =>
                         {
-
+                            console.log('app component loading');
                           // TODO(rado): investigate whether to support bindings on root component.
+                          debugger;
                           return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector)
                               .then((componentRef) => {
+                                console.log('app component loaded')
                                 var domView = resolveInternalDomView(componentRef.hostView.render);
                                 // We need to do this here to ensure that we create Testability and
                                 // it's ready on the window for users.
@@ -111,7 +115,7 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
         .toFactory(
             (styleUrlResolver, doc) => {
                 console.log('strategy doc', doc);
-                new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, doc.head)
+                return new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, doc.head)
             },
             [StyleUrlResolver, DOCUMENT_TOKEN]
         ),
@@ -121,13 +125,20 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
         .toFactory(
             (eventManager, shadowDomStrategy, doc) => {
                 console.log('renderer doc', doc);
-                new DomRenderer(eventManager, shadowDomStrategy, doc)
+                return new DomRenderer(eventManager, shadowDomStrategy, doc)
             },
             [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]
         ),
     bind(Renderer).toAlias(DomRenderer),
-    TestDomCompiler,
-    bind(RenderCompiler).toAlias(TestDomCompiler),
+    //TestDomCompiler,
+    //bind(RenderCompiler).toAlias(TestDomCompiler),
+    bind(DefaultDomCompiler).toFactory(
+        (parser, shadowDomStrategy, templateLoader) => {
+            return new DefaultDomCompiler(parser, shadowDomStrategy, templateLoader)
+        },
+        [Parser, ShadowDomStrategy, TemplateLoader]
+    ),
+    bind(RenderCompiler).toAlias(DefaultDomCompiler),
     //// // TODO(tbosch): We need an explicit factory here, as
     //// // we are getting errors in dart2js with mirrors...
     bind(AppViewPool).toFactory((capacity) => new AppViewPool(capacity), [APP_VIEW_POOL_CAPACITY]),
@@ -145,6 +156,9 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
         (reader, cache, templateResolver,
          componentUrlMapper, urlResolver,
          render, protoViewFactory) => {
+            return new Compiler(reader, cache, templateResolver,
+                componentUrlMapper, urlResolver,
+                render, protoViewFactory)
          },
          [DirectiveResolver, CompilerCache, TemplateResolver,
           ComponentUrlMapper, UrlResolver,
@@ -180,7 +194,9 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
         [XHR, StyleUrlResolver, UrlResolver]
     ),
     bind(DynamicComponentLoader).toFactory(
-        (compiler, appViewManager) => new DynamicComponentLoader(compiler, appViewManager),
+        (compiler, appViewManager) => {
+            return new DynamicComponentLoader(compiler, appViewManager)
+        },
         [Compiler, AppViewManager]
     ),
     Testability
@@ -220,7 +236,7 @@ export function bootstrap(appComponentType: Type,
     var renderer = appInjector.get(Renderer);
     var loader = appInjector.get(TemplateLoader);
     var inliner = appInjector.get(StyleInliner);
-    var loader = appInjector.get(DynamicComponentLoader);
+    //var loader = appInjector.get(DynamicComponentLoader);
     console.log(loader);
 
     PromiseWrapper.then(

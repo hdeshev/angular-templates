@@ -8,7 +8,7 @@ import {bootstrap} from 'dom/application';
   selector: 'my-app'
 })
 @View({
-  template: '<h1>Hello {{ name }}</h1>'
+  template: '<div>Hello {{ name }}</div>'
 })
 class MyAppComponent {
   name: string;
@@ -19,7 +19,11 @@ class MyAppComponent {
 }
 
 try {
-    bootstrap(MyAppComponent);
+    let appPromise = bootstrap(MyAppComponent);
+    appPromise.then(appRef => {
+        console.log('appRef', appRef);
+    });
+    console.log('done');
 } catch (e) {
     console.log(e);
 }
