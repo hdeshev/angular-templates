@@ -3,7 +3,7 @@ import {Component, View} from 'angular2/angular2';
 import {bootstrap} from 'dom/application';
 
 @Component({
-  selector: 'my-app'
+  selector: 'app'
 })
 @View({
   template: '<div>Hello {{ name }}</div>'
@@ -12,14 +12,15 @@ class MyAppComponent {
   name: string;
 
   constructor() {
-    this.name = 'Alice';
+    console.log('MyAppComponent constructor');
+    this.name = 'default name';
   }
 }
 
 try {
     let appPromise = bootstrap(MyAppComponent);
     appPromise.then(appRef => {
-        console.log('appRef', appRef);
+        console.log('appRef', appRef.hostComponent.name);
     });
     console.log('done');
 } catch (e) {
