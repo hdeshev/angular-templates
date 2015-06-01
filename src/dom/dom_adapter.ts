@@ -26,9 +26,8 @@ var parsedDoc = {
             children: []
         },
         {
-            name: 'button',
-            text: 'button1',
-            attrs: new Map<string, string>(),
+            name: 'info',
+            attrs: new Map<string, string>([['message', 'blah...']]),
             classes: [],
             children: []
         }
@@ -52,10 +51,12 @@ export class TestDomAdapter extends DomAdapter {
   parse(templateHtml: string) { throw _abstract(); }
   query(selector: string): any { throw _abstract(); }
   querySelector(el, selector: string) {
+      console.log('querySelector', selector)
       //throw _abstract();
       return parsedDoc;
   }
   querySelectorAll(el, selector: string): List<any> {
+      console.log('querySelectorAll', selector)
       //throw _abstract();
       return parsedDoc.children;
   }
