@@ -70,72 +70,81 @@ function _createNgZone(givenReporter: Function): NgZone {
   return zone;
 }
 
+function loudFail(action: (...args: any[]) => any, ...args: any[]) {
+    return (...args: any[]) => {
+        try {
+            return action(...args);
+        } catch (e) {
+            console.log(e.message, e.stack, e);
+            throw e;
+        }
+    }
+}
+
 function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
   console.log(appComponentRefToken);
   return [
     bind(DOCUMENT_TOKEN)
         .toValue(DOM.defaultDoc()),
     bind(appComponentTypeToken).toValue(appComponentType),
-    bind(appComponentRefToken)
-        .toAsyncFactory((dynamicComponentLoader, injector, testability, registry) =>
-                        {
-                            console.log('app component loading');
-                          // TODO(rado): investigate whether to support bindings on root component.
-                          debugger;
-                          return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector)
-                              .then((componentRef) => {
-                                console.log('app component loaded')
-                                var domView = resolveInternalDomView(componentRef.hostView.render);
-                                // We need to do this here to ensure that we create Testability and
-                                // it's ready on the window for users.
-                                registry.registerApplication(domView.boundElements[0], testability);
+    bind(appComponentRefToken).toAsyncFactory(loudFail(
+        (dynamicComponentLoader, injector, testability, registry) => {
+            console.log('app component loading');
+            // TODO(rado): investigate whether to support bindings on root component.
+            debugger;
+            return dynamicComponentLoader.loadAsRoot(appComponentType, null, injector)
+            .then((componentRef) => {
+                console.log('app component loaded')
+                var domView = resolveInternalDomView(componentRef.hostView.render);
+                // We need to do this here to ensure that we create Testability and
+                // it's ready on the window for users.
+                registry.registerApplication(domView.boundElements[0], testability);
 
-                                return componentRef;
-                              });
-                        },
-                        [DynamicComponentLoader, Injector, Testability, TestabilityRegistry]),
+                return componentRef;
+            });
+        }),
+        [DynamicComponentLoader, Injector, Testability, TestabilityRegistry]
+    ),
 
-    bind(appComponentType).toFactory((ref) => ref.instance, [appComponentRefToken]),
-    bind(LifeCycle)
-        .toFactory((exceptionHandler) => new LifeCycle(exceptionHandler, null, assertionsEnabled()),
-                   [ExceptionHandler]),
-    bind(EventManager)
-        .toFactory(
-            (ngZone) =>
-            {
-                var plugins = [
-                    //new HammerGesturesPlugin(),
-                    //new KeyEventsPlugin(),
-                    //new DomEventsPlugin()
-                ];
-                return new EventManager(plugins, ngZone);
-            },
-            [NgZone]),
-    bind(ShadowDomStrategy)
-        .toFactory(
-            (styleUrlResolver, doc) => {
-                console.log('strategy doc', doc);
-                return new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, doc.head)
-            },
-            [StyleUrlResolver, DOCUMENT_TOKEN]
-        ),
+    bind(appComponentType).toFactory(loudFail((ref) => ref.instance), [appComponentRefToken]),
+    bind(LifeCycle).toFactory(loudFail(
+        (exceptionHandler) => new LifeCycle(exceptionHandler, null, assertionsEnabled())),
+        [ExceptionHandler]
+    ),
+    bind(EventManager).toFactory(
+        loudFail((ngZone) => {
+            var plugins = [
+                //new HammerGesturesPlugin(),
+                //new KeyEventsPlugin(),
+                //new DomEventsPlugin()
+            ];
+            return new EventManager(plugins, ngZone);
+        }),
+        [NgZone]
+    ),
+    bind(ShadowDomStrategy).toFactory(
+        loudFail((styleUrlResolver, doc) => {
+            console.log('strategy doc', doc);
+            return new EmulatedUnscopedShadowDomStrategy(styleUrlResolver, doc.head)
+        }),
+        [StyleUrlResolver, DOCUMENT_TOKEN]
+    ),
     // TODO(tbosch): We need an explicit factory here, as
     // we are getting errors in dart2js with mirrors...
-    bind(DomRenderer)
-        .toFactory(
-            (eventManager, shadowDomStrategy, doc) => {
-                console.log('renderer doc', doc);
-                return new DomRenderer(eventManager, shadowDomStrategy, doc)
-            },
-            [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]
-        ),
+    bind(DomRenderer).toFactory(
+        loudFail((eventManager, shadowDomStrategy, doc) => {
+            console.log('renderer doc', doc);
+            return new DomRenderer(eventManager, shadowDomStrategy, doc)
+        }),
+        [EventManager, ShadowDomStrategy, DOCUMENT_TOKEN]
+    ),
     bind(Renderer).toAlias(DomRenderer),
     //TestDomCompiler,
     //bind(RenderCompiler).toAlias(TestDomCompiler),
     bind(DefaultDomCompiler).toFactory(
-        (parser, shadowDomStrategy, templateLoader) => {
+        loudFail((parser, shadowDomStrategy, templateLoader) => {
             return new DefaultDomCompiler(parser, shadowDomStrategy, templateLoader)
-        },
+        }),
         [Parser, ShadowDomStrategy, TemplateLoader]
     ),
     bind(RenderCompiler).toAlias(DefaultDomCompiler),
@@ -145,21 +154,21 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
     bind(APP_VIEW_POOL_CAPACITY).toValue(10000),
     DirectiveResolver,
     bind(AppViewManagerUtils).toFactory(
-        (directiveResolver) => new AppViewManagerUtils(directiveResolver),
+        loudFail((directiveResolver) => new AppViewManagerUtils(directiveResolver)),
         [DirectiveResolver]
     ),
     bind(AppViewManager).toFactory(
-        (viewPool, utils, renderer) => new AppViewManager(viewPool, utils, renderer),
+        loudFail((viewPool, utils, renderer) => new AppViewManager(viewPool, utils, renderer)),
         [AppViewPool, AppViewManagerUtils, Renderer]
     ),
     bind(Compiler).toFactory(
-        (reader, cache, templateResolver,
+        loudFail((reader, cache, templateResolver,
          componentUrlMapper, urlResolver,
          render, protoViewFactory) => {
             return new Compiler(reader, cache, templateResolver,
                 componentUrlMapper, urlResolver,
                 render, protoViewFactory)
-         },
+         }),
          [DirectiveResolver, CompilerCache, TemplateResolver,
           ComponentUrlMapper, UrlResolver,
           RenderCompiler, ProtoViewFactory]
@@ -168,35 +177,38 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
     TemplateResolver,
     bind(PipeRegistry).toValue(defaultPipeRegistry),
     bind(ChangeDetection).toFactory(
-        pipeRegistry => new DynamicChangeDetection(pipeRegistry),
+        loudFail(pipeRegistry => new DynamicChangeDetection(pipeRegistry)),
         [PipeRegistry]
     ),
     bind(ProtoViewFactory).toFactory(
-        changeDetection => new ProtoViewFactory(changeDetection),
+        loudFail(changeDetection => new ProtoViewFactory(changeDetection)),
         [ChangeDetection]
     ),
     bind(TemplateLoader).toFactory(
-        (xhr, urlResolver) => new TemplateLoader(xhr, urlResolver),
+        loudFail((xhr, urlResolver) => new TemplateLoader(xhr, urlResolver)),
         [XHR, UrlResolver]
     ),
     Lexer,
     bind(Parser).toFactory(
-        (lexer, reflector) => new Parser(lexer, reflector),
+        loudFail((lexer, reflector) => new Parser(lexer, reflector)),
         [Lexer, Reflector]
     ),
     ExceptionHandler,
     bind(XHR).toValue(new XHRImpl()),
     ComponentUrlMapper,
     UrlResolver,
-    bind(StyleUrlResolver).toFactory((urlResolver) => new StyleUrlResolver(urlResolver), [UrlResolver]),
+    bind(StyleUrlResolver).toFactory(
+        loudFail((urlResolver) => new StyleUrlResolver(urlResolver)),
+        [UrlResolver]
+    ),
     bind(StyleInliner).toFactory(
-        (xhr, styleUrlResolver, urlResolver) => new StyleInliner(xhr, styleUrlResolver, urlResolver),
+        loudFail((xhr, styleUrlResolver, urlResolver) => new StyleInliner(xhr, styleUrlResolver, urlResolver)),
         [XHR, StyleUrlResolver, UrlResolver]
     ),
     bind(DynamicComponentLoader).toFactory(
-        (compiler, appViewManager) => {
+        loudFail((compiler, appViewManager) => {
             return new DynamicComponentLoader(compiler, appViewManager)
-        },
+        }),
         [Compiler, AppViewManager]
     ),
     Testability
