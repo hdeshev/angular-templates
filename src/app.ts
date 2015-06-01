@@ -11,7 +11,8 @@ import {
 import {bootstrap} from 'dom/application';
 
 @Component({
-  selector: 'info'
+  selector: 'info',
+  properties: {message: 'message'}
 })
 @View({
   template: 'MESSAGE: {{ message }}'
@@ -21,15 +22,20 @@ class InfoComponent {
 
   constructor(@Inject(forwardRef(() => MyAppComponent)) app: MyAppComponent) {
     console.log('InfoComponent constructor');
-    this.message = 'App name: ' + app.name;
+    console.log('App name: ', app.name);
+
+    setTimeout(() => {
+        console.log('info.message', this.message);
+    }, 200);
   }
 }
 
 @Component({
-  selector: 'app'
+  selector: 'app',
+  properties: {name: 'name'}
 })
 @View({
-  template: '<info message="App name: {{name}}"></info>',
+  template: '<info message="Not working - fix DOM.createTemplate {{name}}"></info>',
   directives: [InfoComponent]
 })
 @Injectable()
@@ -39,6 +45,10 @@ class MyAppComponent {
   constructor() {
     console.log('MyAppComponent constructor');
     this.name = 'default name';
+
+    setTimeout(() => {
+        console.log('app.name', this.name);
+    }, 200);
   }
 }
 
