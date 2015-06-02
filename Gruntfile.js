@@ -4,8 +4,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-file');
 
-    var runEnv = process.env
-    runEnv['NODE_PATH'] = 'dist'
+    var runEnv = JSON.parse(JSON.stringify(process.env));
+    runEnv['NODE_PATH'] = 'dist';
 
     grunt.initConfig({
         ts: {
