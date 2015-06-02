@@ -4,6 +4,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-file');
 
+    var runEnv = process.env
+    runEnv['NODE_PATH'] = 'dist'
+
     grunt.initConfig({
         ts: {
             build: {
@@ -68,7 +71,12 @@ module.exports = function(grunt) {
         },
         shell: {
             runApp: {
-                command: 'NODE_PATH=dist node dist/app.js'
+                command: 'node dist/app.js',
+                options: {
+                    execOptions: {
+                        env: runEnv
+                    }
+                }
             }
         },
     });
