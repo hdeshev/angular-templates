@@ -234,10 +234,10 @@ export class TestDomAdapter extends DomAdapter {
   supportsDOMEvents(): boolean { throw _abstract(); }
   supportsNativeShadowDOM(): boolean { throw _abstract(); }
   getGlobalEventTarget(target: string) { throw _abstract(); }
-  getHistory() { throw _abstract(); }
-  getLocation() { throw _abstract(); }
-  getBaseHref() { throw _abstract(); }
-  getUserAgent() { throw _abstract(); }
+  getHistory(): any { throw _abstract(); }
+  getLocation(): any { throw _abstract(); }
+  getBaseHref():string { throw _abstract(); }
+  getUserAgent(): string { throw _abstract(); }
 }
 
 if (!String.prototype.startsWith) {

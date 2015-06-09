@@ -28,6 +28,7 @@ import {EventManager} from 'angular2/src/render/dom/events/event_manager';
 import {ShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/shadow_dom_strategy';
 import {EmulatedUnscopedShadowDomStrategy} from 'angular2/src/render/dom/shadow_dom/emulated_unscoped_shadow_dom_strategy';
 import {AppViewPool, APP_VIEW_POOL_CAPACITY} from 'angular2/src/core/compiler/view_pool';
+import {AppViewListener} from 'angular2/src/core/compiler/view_listener';
 import {XHR} from 'angular2/src/services/xhr';
 import {XHRImpl} from 'angular2/src/services/xhr_impl';
 import {StyleInliner} from 'angular2/src/render/dom/shadow_dom/style_inliner';
@@ -158,8 +159,8 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
         [DirectiveResolver]
     ),
     bind(AppViewManager).toFactory(
-        loudFail((viewPool, utils, renderer) => new AppViewManager(viewPool, utils, renderer)),
-        [AppViewPool, AppViewManagerUtils, Renderer]
+        loudFail((viewPool, viewListener, utils, renderer) => new AppViewManager(viewPool, viewListener, utils, renderer)),
+        [AppViewPool, AppViewListener, AppViewManagerUtils, Renderer]
     ),
     bind(Compiler).toFactory(
         loudFail((reader, cache, templateResolver,
@@ -175,6 +176,7 @@ function _injectorBindings(appComponentType): List<Type | Binding | List<any>> {
     ),
     CompilerCache,
     TemplateResolver,
+    AppViewListener,
     bind(PipeRegistry).toValue(defaultPipeRegistry),
     bind(ChangeDetection).toFactory(
         loudFail(pipeRegistry => new DynamicChangeDetection(pipeRegistry)),
