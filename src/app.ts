@@ -9,6 +9,7 @@ import {
     forwardRef,
 } from 'angular2/angular2';
 import {bootstrap} from 'dom/application';
+//import {bootstrap} from 'dom/bootstrap_application';
 
 @Component({
   selector: 'info',
